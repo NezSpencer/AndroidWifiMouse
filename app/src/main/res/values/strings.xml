@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">AndroidWifiMouse</string>
+    <string name="ip_address_empty_error">Ip address cannot be empty</string>
+    <string name="empty_port_number_error">Port number is empty</string>
 </resources>

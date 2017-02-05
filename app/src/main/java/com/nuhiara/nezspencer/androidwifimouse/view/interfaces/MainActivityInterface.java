@@ -11,6 +11,15 @@ public interface MainActivityInterface {
 
     void stopLoadingProgress();
 
-    void showError(String error);
+    String getIPaddress();
 
+    int getPortNumber();
+
+    void showPortNumberError(int resID);
+
+    void showIPaddressError(int resID);
+
+    void startMouseActivity();
+
+    void showSuccessMessage(String message);
 }
