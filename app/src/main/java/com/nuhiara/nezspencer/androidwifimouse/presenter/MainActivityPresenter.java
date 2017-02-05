@@ -1,5 +1,6 @@
 package com.nuhiara.nezspencer.androidwifimouse.presenter;
 
+import com.nuhiara.nezspencer.androidwifimouse.GlobalVariables;
 import com.nuhiara.nezspencer.androidwifimouse.R;
 import com.nuhiara.nezspencer.androidwifimouse.view.interfaces.MainActivityInterface;
 
@@ -14,6 +15,8 @@ import java.net.Socket;
 
 public class MainActivityPresenter {
 
+    private Thread socketThread;
+    private ClientSocket clientSocket;
     private static MainActivityInterface mainActivityInterface;
     public MainActivityPresenter(MainActivityInterface mInterface) {
         mainActivityInterface=mInterface;
@@ -31,7 +34,7 @@ public class MainActivityPresenter {
             giveEmptyPortNumberError();
         else {
 
-            proceedToConnect();
+            proceedToConnect(serverIP,portNo);
         }
     }
 
@@ -41,20 +44,27 @@ public class MainActivityPresenter {
 
     private void giveSuccessmsgFromServer(String msg){
         mainActivityInterface.showSuccessMessage(msg);
-        proceedToConnect();
+        mainActivityInterface.startMouseActivity();
     }
 
-    private void proceedToConnect() {
+    private void proceedToConnect(final String serverIp, final int portNumber) {
 
         //write code to connect on success call: startMouseActivity()
-        mainActivityInterface.startMouseActivity();
+        socketThread=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                clientSocket=new ClientSocket(serverIp,portNumber);
+                clientSocket.createConnection();
+            }
+        });
+        socketThread.start();
     }
 
     private void giveEmptyServerIpError() {
         mainActivityInterface.showIPaddressError(R.string.ip_address_empty_error);
     }
 
-    class ClientSocket {
+   private class ClientSocket {
         String ipAddress;
         int portNumber;
         private Socket socket;
@@ -70,18 +80,24 @@ public class MainActivityPresenter {
             try {
                 socket=new Socket(ipAddress,portNumber);
                 reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                GlobalVariables.setAppSocket(socket);
 
 
                 String fromServer=null;
 
                 while ((fromServer=reader.readLine())!=null)
                 {
-                    giveSuccessmsgFromServer(fromServer);
+                    if (fromServer.equalsIgnoreCase("connection successful"))
+                    {
+                        giveSuccessmsgFromServer(fromServer);
+                        break;
+                    }
+
                 }
 
             }
             catch (IOException ex){
-
+                ex.printStackTrace();
             }
             finally {
                 try {
