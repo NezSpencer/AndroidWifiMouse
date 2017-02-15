@@ -42,7 +42,7 @@ public class MainActivityPresenter {
         mainActivityInterface.showPortNumberError(R.string.empty_port_number_error);
     }
 
-    private void giveSuccessmsgFromServer(String msg){
+    public void giveSuccessmsgFromServer(String msg){
         mainActivityInterface.showSuccessMessage(msg);
         mainActivityInterface.startMouseActivity();
     }
@@ -78,6 +78,7 @@ public class MainActivityPresenter {
         public void createConnection()
         {
             try {
+                mainActivityInterface.showLoadingProgress();
                 socket=new Socket(ipAddress,portNumber);
                 reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 GlobalVariables.setAppSocket(socket);
@@ -89,6 +90,7 @@ public class MainActivityPresenter {
                 {
                     if (fromServer.equalsIgnoreCase("connection successful"))
                     {
+                        mainActivityInterface.stopLoadingProgress();
                         giveSuccessmsgFromServer(fromServer);
                         break;
                     }
@@ -98,6 +100,7 @@ public class MainActivityPresenter {
             }
             catch (IOException ex){
                 ex.printStackTrace();
+                mainActivityInterface.stopLoadingProgress();
             }
             finally {
                 try {

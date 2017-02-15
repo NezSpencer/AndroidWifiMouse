@@ -55,6 +55,7 @@ public class MainActivityPresenterTest {
         when(mView.getIPaddress()).thenReturn("192.168.0.1");
         when(mView.getPortNumber()).thenReturn(8080);
         presenter.onConnectButtonClicked();
+        presenter.giveSuccessmsgFromServer("Connection Successful");
 
         verify(mView).startMouseActivity();
     }

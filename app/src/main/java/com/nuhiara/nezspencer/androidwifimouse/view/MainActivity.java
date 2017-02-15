@@ -1,5 +1,6 @@
 package com.nuhiara.nezspencer.androidwifimouse.view;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -22,12 +23,17 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
     @Bind(R.id.button_connect) Button connectSocketButton;
 
     MainActivityPresenter presenter;
+    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+        progressDialog=new ProgressDialog(this);
+        progressDialog.setMessage("Connecting...");
+        progressDialog.setCancelable(false);
+
 
         presenter=new MainActivityPresenter(this);
     }
@@ -62,12 +68,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
 
     @Override
     public void showLoadingProgress() {
-
+        progressDialog.show();
     }
 
     @Override
     public void stopLoadingProgress() {
-
+        progressDialog.dismiss();
     }
 
     @Override
