@@ -2,4 +2,9 @@
     <string name="app_name">AndroidWifiMouse</string>
     <string name="ip_address_empty_error">Ip address cannot be empty</string>
     <string name="empty_port_number_error">Port number is empty</string>
+    <string name="left">left</string>
+    <string name="right">right</string>
+    <string name="port_number">port Number</string>
+    <string name="connect_to_laptop">connect to Laptop</string>
+    <string name="server_ip">server Ip Address</string>
 </resources>

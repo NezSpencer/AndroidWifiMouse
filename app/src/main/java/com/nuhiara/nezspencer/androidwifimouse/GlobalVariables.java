@@ -11,7 +11,7 @@ import java.net.Socket;
 
 public class GlobalVariables extends Application {
 
-    private static Socket appSocket;
+    public static Socket appSocket;
 
     @Override
     public void onCreate() {

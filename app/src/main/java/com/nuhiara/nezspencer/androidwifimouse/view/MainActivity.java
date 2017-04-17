@@ -1,15 +1,21 @@
 package com.nuhiara.nezspencer.androidwifimouse.view;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.text.format.Formatter;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.nuhiara.nezspencer.androidwifimouse.R;
 import com.nuhiara.nezspencer.androidwifimouse.presenter.MainActivityPresenter;
+import com.nuhiara.nezspencer.androidwifimouse.utility.Utils;
 import com.nuhiara.nezspencer.androidwifimouse.view.interfaces.MainActivityInterface;
 
 import butterknife.Bind;
@@ -34,6 +40,12 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
         progressDialog.setMessage("Connecting...");
         progressDialog.setCancelable(false);
 
+        Log.e("IPAddress is: ",Utils.getIPAddress(true));
+        editServerIp.setText(Utils.getIPAddress(true));
+
+        Log.e("IPAddress2 is ",getIPAddressOverWifi());
+
+
 
         presenter=new MainActivityPresenter(this);
     }
@@ -45,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
 
     @Override
     public void showSuccessMessage(String message) {
+        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
 
     }
 
@@ -78,11 +91,17 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
 
     @Override
     public void startMouseActivity() {
-
+        startActivity(new Intent(this,MouseActivity.class));
     }
 
     @OnClick(R.id.button_connect)
     public void connectSocket(){
         presenter.onConnectButtonClicked();
+    }
+
+    public  String getIPAddressOverWifi(){
+        WifiManager manager=(WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+
+        return Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
     }
 }

@@ -1,5 +1,7 @@
 package com.nuhiara.nezspencer.androidwifimouse.presenter;
 
+import android.util.Log;
+
 import com.nuhiara.nezspencer.androidwifimouse.GlobalVariables;
 import com.nuhiara.nezspencer.androidwifimouse.R;
 import com.nuhiara.nezspencer.androidwifimouse.view.interfaces.MainActivityInterface;
@@ -7,6 +9,7 @@ import com.nuhiara.nezspencer.androidwifimouse.view.interfaces.MainActivityInter
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
@@ -18,8 +21,11 @@ public class MainActivityPresenter {
     private Thread socketThread;
     private ClientSocket clientSocket;
     private static MainActivityInterface mainActivityInterface;
+
+    private final String TAG = this.getClass().getSimpleName();
     public MainActivityPresenter(MainActivityInterface mInterface) {
         mainActivityInterface=mInterface;
+
     }
 
 
@@ -44,12 +50,14 @@ public class MainActivityPresenter {
 
     public void giveSuccessmsgFromServer(String msg){
         mainActivityInterface.showSuccessMessage(msg);
+        Log.e(TAG," "+msg);
         mainActivityInterface.startMouseActivity();
     }
 
     private void proceedToConnect(final String serverIp, final int portNumber) {
 
         //write code to connect on success call: startMouseActivity()
+        mainActivityInterface.showLoadingProgress();
         socketThread=new Thread(new Runnable() {
             @Override
             public void run() {
@@ -67,7 +75,7 @@ public class MainActivityPresenter {
    private class ClientSocket {
         String ipAddress;
         int portNumber;
-        private Socket socket;
+        /*private Socket socket;*/
         private BufferedReader reader;
 
         public ClientSocket(String ipAddress, int portNumber){
@@ -78,10 +86,11 @@ public class MainActivityPresenter {
         public void createConnection()
         {
             try {
-                mainActivityInterface.showLoadingProgress();
-                socket=new Socket(ipAddress,portNumber);
-                reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                GlobalVariables.setAppSocket(socket);
+
+                GlobalVariables.appSocket=new Socket(ipAddress,portNumber);
+                reader=new BufferedReader(new InputStreamReader(GlobalVariables.appSocket.getInputStream()));
+                /*GlobalVariables.setAppSocket(socket);*/
+                GlobalVariables.appSocket.connect(new InetSocketAddress(ipAddress,portNumber));
 
 
                 String fromServer=null;
@@ -101,14 +110,6 @@ public class MainActivityPresenter {
             catch (IOException ex){
                 ex.printStackTrace();
                 mainActivityInterface.stopLoadingProgress();
-            }
-            finally {
-                try {
-                    if (socket!=null)
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
     }
