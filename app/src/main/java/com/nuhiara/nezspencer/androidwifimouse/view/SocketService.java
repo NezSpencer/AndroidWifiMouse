@@ -2,6 +2,7 @@ package com.nuhiara.nezspencer.androidwifimouse.view;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.util.Log;
 
 import com.nuhiara.nezspencer.androidwifimouse.GlobalVariables;
 import com.nuhiara.nezspencer.androidwifimouse.utility.Constants;
@@ -23,27 +24,37 @@ public class SocketService extends IntentService {
     protected void onHandleIntent(Intent intent) {
 
 
-        double xyCoordinates[]=null;
+        Log.e("LOGGER"," inside service");
+        int xyCoordinates[]=null;
         String btn =null;
         if (intent.hasExtra(Constants.KEY_DATA))
-            xyCoordinates = intent.getDoubleArrayExtra(Constants.KEY_DATA);
+        {
+            xyCoordinates = intent.getIntArrayExtra(Constants.KEY_DATA);
+            Log.e("LOGGER"," "+xyCoordinates.length);
+            Log.e("LOGGER"," coordinates gotten "+xyCoordinates[0]+","+xyCoordinates[1]);
+        }
+
 
         else if (intent.hasExtra(Constants.KEY_BUTTON))
             btn = intent.getStringExtra(Constants.KEY_BUTTON);
 
         try {
+            Log.e("LOGGER"," inside service "+GlobalVariables.appSocket.isConnected());
             PrintWriter printWriter = new PrintWriter(GlobalVariables.appSocket.getOutputStream(),true);
             if (xyCoordinates != null)
             {
-                double xCoord = xyCoordinates[0];
-                double yCoord = xyCoordinates[1];
+                int xCoord = xyCoordinates[0];
+                int yCoord = xyCoordinates[1];
 
-                printWriter.write(""+xCoord+"_"+yCoord);
+                Log.e("LOGGER"," sending to pc");
+                printWriter.write(""+xCoord+"_"+yCoord+"\n");
+                printWriter.flush();
+                Log.e("LOGGER"," sent to pc");
             }
 
             else if (btn != null)
             {
-                printWriter.write(btn);
+                printWriter.write(btn+"\n");
             }
 
         } catch (IOException e) {

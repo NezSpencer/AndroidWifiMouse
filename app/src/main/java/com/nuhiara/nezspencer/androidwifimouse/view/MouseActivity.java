@@ -52,7 +52,7 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
         sensorManager.registerListener(this,accelerometerSensor,SensorManager.SENSOR_DELAY_NORMAL);
 
         screenWidth = getResources().getDisplayMetrics().widthPixels - 50;
-        screenHeight = getResources().getDisplayMetrics().heightPixels - 50;
+        screenHeight = getResources().getDisplayMetrics().heightPixels - 50 - leftMouseButton.getHeight();
         buttonX1 = mouseTrackBall.getX();
         buttonX2 = buttonX1 + mouseTrackBall.getWidth();
         buttonY1 = mouseTrackBall.getY();
@@ -61,18 +61,14 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
         leftMouseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent btnIntent = new Intent(MouseActivity.this,SocketService.class);
-                btnIntent.putExtra(Constants.KEY_BUTTON,Constants.KEY_LEFT);
-                startService(btnIntent);
+                sendMouseClickToService(Constants.KEY_LEFT);
             }
         });
 
         rightMouseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent btnIntent = new Intent(MouseActivity.this,SocketService.class);
-                btnIntent.putExtra(Constants.KEY_BUTTON, Constants.KEY_RIGHT);
-                startService(btnIntent);
+                sendMouseClickToService(Constants.KEY_RIGHT);
             }
         });
 
@@ -89,6 +85,9 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
             float z = sensorEvent.values[2];
             Log.e(TAG," x= "+x+" y= "+y);
             long currentTime= System.currentTimeMillis();
+
+            double mouseX;
+            double mouseY;
             if ((currentTime - lastUpdateTime)> 100)
             {
                 /*long diffTime = currentTime -lastUpdateTime;
@@ -113,7 +112,15 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
                         //xPos +=10;
                         if ((buttonX2 + MOVE_AMOUNT) < (screenWidth-mouseTrackBall.getWidth()) &&
                                 (buttonX2 + MOVE_AMOUNT) > 60)
+                        {
                             mouseTrackBall.animate().translationXBy(MOVE_AMOUNT);
+                            mouseX = buttonX2 + MOVE_AMOUNT;
+                            mouseY = buttonY2;
+
+                            sendXYcoordinatesToService(mouseX,mouseY);
+
+                        }
+
 
                     }
                     else {
@@ -122,7 +129,14 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
                         //xPos -=10;
                         if ((buttonX1 -MOVE_AMOUNT) <(screenWidth-mouseTrackBall.getWidth()) &&
                                 (buttonX1 -MOVE_AMOUNT) > 60)
+                        {
                             mouseTrackBall.animate().translationXBy(-MOVE_AMOUNT);
+                            mouseX = buttonX1 - MOVE_AMOUNT;
+                            mouseY = buttonY2;
+
+                            sendXYcoordinatesToService(mouseX,mouseY);
+                        }
+
                     }
 
                 }
@@ -177,5 +191,21 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
     @Override
     public void moveBall(int x, int y) {
 
+    }
+
+    public void sendXYcoordinatesToService(double xCoord, double yCoord){
+
+        int xx = (int) xCoord*Constants.PC_WIDTH/screenWidth;
+        int yy = (int) yCoord*Constants.PC_HEIGHT/screenHeight;
+        Intent serviceIntent = new Intent(this,SocketService.class);
+        serviceIntent.putExtra(Constants.KEY_DATA,new int[]{xx,yy});
+        Log.e("LOGGER"," sending to service");
+        startService(serviceIntent);
+    }
+
+    public void sendMouseClickToService(String buttonClicked){
+        Intent btnIntent = new Intent(MouseActivity.this,SocketService.class);
+        btnIntent.putExtra(Constants.KEY_BUTTON,buttonClicked);
+        startService(btnIntent);
     }
 }

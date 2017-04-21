@@ -56,8 +56,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
     }
 
     @Override
-    public void showSuccessMessage(String message) {
-        Toast.makeText(this,message,Toast.LENGTH_LONG).show();
+    public void showSuccessMessage(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(MainActivity.this,message,Toast.LENGTH_LONG).show();
+            }
+        });
+
 
     }
 
@@ -91,7 +97,13 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
 
     @Override
     public void startMouseActivity() {
-        startActivity(new Intent(this,MouseActivity.class));
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                startActivity(new Intent(MainActivity.this,MouseActivity.class));
+            }
+        });
+
     }
 
     @OnClick(R.id.button_connect)
