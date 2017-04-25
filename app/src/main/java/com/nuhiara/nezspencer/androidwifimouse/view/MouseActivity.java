@@ -1,6 +1,7 @@
 package com.nuhiara.nezspencer.androidwifimouse.view;
 
 import android.content.Intent;
+import android.graphics.Point;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -8,9 +9,13 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.nuhiara.nezspencer.androidwifimouse.R;
 import com.nuhiara.nezspencer.androidwifimouse.utility.Constants;
@@ -35,13 +40,17 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
     @Bind(R.id.track_ball) Button mouseTrackBall;
     @Bind(R.id.button_left_mouse)Button leftMouseButton;
     @Bind(R.id.button_right_mouse)Button rightMouseButton;
+    @Bind(R.id.mouse_layout)RelativeLayout parentLayout;
+    @Bind(R.id.linear_button_layout)LinearLayout mouseButtonLayout;
 
     private float buttonX1,buttonX2,buttonY1, buttonY2;
 
     private int screenWidth;
     private int screenHeight;
+    static float mouseX =0;
+    static float mouseY = 0;
 
-    private static final int MOVE_AMOUNT=10;
+    private static final int MOVE_AMOUNT=30;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +60,14 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
         accelerometerSensor=sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this,accelerometerSensor,SensorManager.SENSOR_DELAY_NORMAL);
 
-        screenWidth = getResources().getDisplayMetrics().widthPixels - 50;
-        screenHeight = getResources().getDisplayMetrics().heightPixels - 50 - leftMouseButton.getHeight();
+        DisplayMetrics metrics = new DisplayMetrics();
+        Display display = getWindowManager().getDefaultDisplay();
+        Point point = new Point();
+        display.getSize(point);
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        screenWidth = point.x; /*metrics.widthPixels - 100;*/
+        screenHeight =point.y;/*metrics.heightPixels -leftMouseButton.getHeight() - 200;*/
+                /*getResources().getDisplayMetrics().heightPixels - 50 - leftMouseButton.getHeight();*/
         buttonX1 = mouseTrackBall.getX();
         buttonX2 = buttonX1 + mouseTrackBall.getWidth();
         buttonY1 = mouseTrackBall.getY();
@@ -61,6 +76,7 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
         leftMouseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Log.e("LOGGER"," left mouse click");
                 sendMouseClickToService(Constants.KEY_LEFT);
             }
         });
@@ -69,6 +85,7 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
             @Override
             public void onClick(View view) {
                 sendMouseClickToService(Constants.KEY_RIGHT);
+                Log.e("LOGGER"," right mouse click");
             }
         });
 
@@ -86,10 +103,10 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
             Log.e(TAG," x= "+x+" y= "+y);
             long currentTime= System.currentTimeMillis();
 
-            double mouseX;
-            double mouseY;
+
             if ((currentTime - lastUpdateTime)> 100)
             {
+                lastUpdateTime = currentTime;
                 /*long diffTime = currentTime -lastUpdateTime;
                 lastUpdateTime=currentTime;
 
@@ -99,23 +116,125 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
 
 
                 }*/
+                x = x*3;
+                y = y *3;
+                if (x > 0f)
+                {
+                    buttonX1 = mouseTrackBall.getX();
+                    buttonX2 = mouseTrackBall.getX() + mouseTrackBall.getWidth();
+                    Log.e("LOGGER","x1="+buttonX1+" x2="+buttonX2);
+
+                    if ((buttonX2 + MOVE_AMOUNT) < screenWidth)
+                    {
+                        mouseTrackBall.animate().xBy(MOVE_AMOUNT);
+                        buttonX1 = mouseTrackBall.getX();
+                        buttonY1 = mouseTrackBall.getY();
+
+                        Log.e("LOGGER","x is increasing");
+                        /*sendXYcoordinatesToService(buttonX1,buttonY1);*/
+                    }
+                }
+                else {
+                    // x < 0
+
+                    buttonX1 = mouseTrackBall.getX();
+                    buttonX2 =buttonX1 + mouseTrackBall.getWidth();
+
+                    if ((buttonX1 - MOVE_AMOUNT) > 10)
+                    {
+                        mouseTrackBall.animate().xBy(-MOVE_AMOUNT);
+                        buttonX1 = mouseTrackBall.getX();
+                        buttonY1 = mouseTrackBall.getY();
+
+                        Log.e("LOGGER","x is decreasing");
+
+                        /*sendXYcoordinatesToService(buttonX1,buttonY1);*/
+                    }
+                }
+
+                /*if (x > 0 && y > 0)
+                {
+                    if (Math.abs(x) > Math.abs(y))
+                    {
+                        mouseX = screenWidth/20;
+                        mouseY = screenHeight/40;
+                        mouseTrackBall.animate().translationXBy(mouseX).translationYBy(mouseY);
+
+                        sendXYcoordinatesToService(mouseX,mouseY);
+                    }
+                    else {
+                        mouseX = screenWidth/30;
+                        mouseY = screenHeight/20;
+                        mouseTrackBall.animate().translationXBy(mouseX).translationYBy(mouseY);
+                        sendXYcoordinatesToService(mouseX,mouseY);
+                    }
+                }
+                else if (x >0 && y < 0)
+                {
+                    if (Math.abs(x) > Math.abs(y))
+                    {
+                        mouseX = screenWidth/20;
+                        mouseY = -screenHeight/40;
+                        mouseTrackBall.animate().translationXBy(mouseX).translationYBy(mouseY);
+                        sendXYcoordinatesToService(mouseX,mouseY);
+                    }
+                    else {
+                        mouseX = screenWidth/30;
+                        mouseY = -screenHeight/20;
+                        mouseTrackBall.animate().translationXBy(mouseX).translationYBy(mouseY);
+                        sendXYcoordinatesToService(mouseX,mouseY);
+                    }
+                }
+                else if (x < 0 && y > 0){
+
+                    if (Math.abs(x) > Math.abs(y))
+                    {
+                        mouseX = -screenWidth/20;
+                        mouseY = screenHeight/40;
+                        mouseTrackBall.animate().translationXBy(mouseX).translationYBy(mouseY);
+                        sendXYcoordinatesToService(mouseX,mouseY);
+                    }
+                    else {
+                        mouseX = -screenWidth/30;
+                        mouseY = screenHeight/20;
+                        mouseTrackBall.animate().translationXBy(mouseX).translationYBy(mouseY);
+                        sendXYcoordinatesToService(mouseX,mouseY);
+                    }
+                }
+                else {
+                    if (Math.abs(x) > Math.abs(y))
+                    {
+                        mouseX = -screenWidth/20;
+                        mouseY = -screenHeight/40;
+                        mouseTrackBall.animate().translationXBy(mouseX).translationYBy(mouseY);
+                        sendXYcoordinatesToService(mouseX,mouseY);
+                    }
+                    else {
+                        mouseX = -screenWidth/30;
+                        mouseY = -screenHeight/20;
+                        mouseTrackBall.animate().translationXBy(mouseX).translationYBy(mouseY);
+                        sendXYcoordinatesToService(mouseX,mouseY);
+                    }
+                }*/
+
 
                 //ToDo implement method to transfer coordinates to service
-                if (Math.abs(x) > Math.abs(y))
+                /*if (Math.abs(x) > Math.abs(y))
                 {
                     //motion on x axis
 
                     if (x > 0)
                     {
                         //positive motion
-                        buttonX2 = mouseTrackBall.getX() + mouseTrackBall.getWidth();
+                        buttonX1 = mouseTrackBall.getX();
+                        buttonX2 = mouseTrackBall.getWidth();
                         //xPos +=10;
-                        if ((buttonX2 + MOVE_AMOUNT) < (screenWidth-mouseTrackBall.getWidth()) &&
-                                (buttonX2 + MOVE_AMOUNT) > 60)
+                        if ((buttonX2 + MOVE_AMOUNT) < (screenWidth-buttonX2) &&
+                                (buttonX1 - MOVE_AMOUNT) > 5)
                         {
                             mouseTrackBall.animate().translationXBy(MOVE_AMOUNT);
-                            mouseX = buttonX2 + MOVE_AMOUNT;
-                            mouseY = buttonY2;
+                            mouseX = buttonX1 + MOVE_AMOUNT;
+                            mouseY = buttonY1;
 
                             sendXYcoordinatesToService(mouseX,mouseY);
 
@@ -126,13 +245,13 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
                     else {
                         //negative motion
                         buttonX1 = mouseTrackBall.getX();
+                        buttonX2 = mouseTrackBall.getWidth();
                         //xPos -=10;
-                        if ((buttonX1 -MOVE_AMOUNT) <(screenWidth-mouseTrackBall.getWidth()) &&
-                                (buttonX1 -MOVE_AMOUNT) > 60)
+                        if ((buttonX1 -MOVE_AMOUNT) >(5) )
                         {
                             mouseTrackBall.animate().translationXBy(-MOVE_AMOUNT);
                             mouseX = buttonX1 - MOVE_AMOUNT;
-                            mouseY = buttonY2;
+                            mouseY = buttonY1;
 
                             sendXYcoordinatesToService(mouseX,mouseY);
                         }
@@ -146,20 +265,36 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
                     if (y > 0)
                     {
                         //positive motion
+                        buttonY1  = mouseTrackBall.getY();
                         buttonY2 = mouseTrackBall.getY() + mouseTrackBall.getHeight();
                         //yPos +=10;
-                        if ((buttonY2 + MOVE_AMOUNT) <screenHeight && (buttonY2 + MOVE_AMOUNT) > 60)
+                        if ((buttonY2 + MOVE_AMOUNT) <screenHeight )
+                        {
                             mouseTrackBall.animate().translationYBy(MOVE_AMOUNT);
+                            mouseY = mouseTrackBall.getY();
+                            mouseX = mouseTrackBall.getX();
+
+                            sendXYcoordinatesToService(mouseX,mouseY);
+                        }
+
 
                     }
                     else {
                         //negative motion
                         buttonY1=mouseTrackBall.getY();
+                        buttonY2 = mouseTrackBall.getY() + mouseTrackBall.getHeight();
                         //yPos -=10;
-                        if ((buttonY1 - MOVE_AMOUNT) > 2 && (buttonY1 - MOVE_AMOUNT) < screenHeight)
+                        if ((buttonY1 - MOVE_AMOUNT) > 5)
+                        {
                             mouseTrackBall.animate().translationYBy(-MOVE_AMOUNT);
+                            mouseX = mouseTrackBall.getX();
+                            mouseY = mouseTrackBall.getY();
+
+                            sendXYcoordinatesToService(mouseX,mouseY);
+                        }
+
                     }
-                }
+                }*/
 
 
                 lastX=x;
@@ -204,6 +339,7 @@ public class MouseActivity extends AppCompatActivity implements SensorEventListe
     }
 
     public void sendMouseClickToService(String buttonClicked){
+        Log.e("LOGGER"," sending click to service");
         Intent btnIntent = new Intent(MouseActivity.this,SocketService.class);
         btnIntent.putExtra(Constants.KEY_BUTTON,buttonClicked);
         startService(btnIntent);

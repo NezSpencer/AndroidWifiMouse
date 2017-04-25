@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
 
     MainActivityPresenter presenter;
     private ProgressDialog progressDialog;
+    private static final String SERVER_IP="192.168.43.201";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -41,7 +42,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
         progressDialog.setCancelable(false);
 
         Log.e("IPAddress is: ",Utils.getIPAddress(true));
-        editServerIp.setText(Utils.getIPAddress(true));
+        editServerIp.setText(SERVER_IP);
 
         Log.e("IPAddress2 is ",getIPAddressOverWifi());
 
@@ -100,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(MainActivity.this,MouseActivity.class));
+                startActivity(new Intent(MainActivity.this,Mouse.class));
             }
         });
 

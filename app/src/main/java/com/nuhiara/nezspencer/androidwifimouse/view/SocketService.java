@@ -36,7 +36,11 @@ public class SocketService extends IntentService {
 
 
         else if (intent.hasExtra(Constants.KEY_BUTTON))
+        {
+            Log.e("LOGGER","click sending to pc");
             btn = intent.getStringExtra(Constants.KEY_BUTTON);
+        }
+
 
         try {
             Log.e("LOGGER"," inside service "+GlobalVariables.appSocket.isConnected());
@@ -54,8 +58,12 @@ public class SocketService extends IntentService {
 
             else if (btn != null)
             {
+                Log.e("LOGGER","click sending to pc");
                 printWriter.write(btn+"\n");
+                printWriter.flush();
+                Log.e("LOGGER"," click sent to pc");
             }
+
 
         } catch (IOException e) {
             e.printStackTrace();
