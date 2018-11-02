@@ -25,14 +25,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".view.MouseActivity">
-
-
-        </activity>
-
-        <service
-                android:exported="false"
-                android:name=".view.SocketService"/>
+        <service android:name=".view.SocketService"/>
 
         <activity android:name=".view.Mouse">
 

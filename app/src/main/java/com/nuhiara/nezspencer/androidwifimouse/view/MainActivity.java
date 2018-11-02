@@ -2,6 +2,7 @@ package com.nuhiara.nezspencer.androidwifimouse.view;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.databinding.DataBindingUtil;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,40 +10,34 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.format.Formatter;
 import android.util.Log;
-import android.widget.Button;
-import android.widget.EditText;
+import android.view.View;
 import android.widget.Toast;
 
 import com.nuhiara.nezspencer.androidwifimouse.R;
+import com.nuhiara.nezspencer.androidwifimouse.databinding.ActivityMainBinding;
 import com.nuhiara.nezspencer.androidwifimouse.presenter.MainActivityPresenter;
+import com.nuhiara.nezspencer.androidwifimouse.presenter.MainActivityViewModel;
 import com.nuhiara.nezspencer.androidwifimouse.utility.Utils;
 import com.nuhiara.nezspencer.androidwifimouse.view.interfaces.MainActivityInterface;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
-public class MainActivity extends AppCompatActivity implements MainActivityInterface{
-
-    @Bind(R.id.edit_server_ip) EditText editServerIp;
-    @Bind(R.id.edit_port_number) EditText editPortNumber;
-    @Bind(R.id.button_connect) Button connectSocketButton;
+public class MainActivity extends AppCompatActivity {
 
     MainActivityPresenter presenter;
     private ProgressDialog progressDialog;
     private static final String SERVER_IP="192.168.43.201";
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         progressDialog=new ProgressDialog(this);
         progressDialog.setMessage("Connecting...");
         progressDialog.setCancelable(false);
+        MainActivityViewModel viewModel =
 
         Log.e("IPAddress is: ",Utils.getIPAddress(true));
-        editServerIp.setText(SERVER_IP);
+        binding.editServerIp.setText(SERVER_IP);
 
         Log.e("IPAddress2 is ",getIPAddressOverWifi());
 
@@ -53,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
 
     @Override
     public String getIPaddress() {
-        return editServerIp.getText().toString();
+        return binding.editServerIp.getText().toString();
     }
 
     @Override
@@ -70,20 +65,20 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
 
     @Override
     public int getPortNumber() {
-        if (TextUtils.isEmpty(editPortNumber.getText().toString()))
+        if (TextUtils.isEmpty(binding.editPortNumber.getText().toString()))
             return 0;
 
-        return Integer.parseInt(editPortNumber.getText().toString());
+        return Integer.parseInt(binding.editPortNumber.getText().toString());
     }
 
     @Override
     public void showPortNumberError(int resID) {
-        editPortNumber.setError(getString(resID));
+        binding.editPortNumber.setError(getString(resID));
     }
 
     @Override
     public void showIPaddressError(int resID) {
-        editServerIp.setError(getString(resID));
+        binding.editServerIp.setError(getString(resID));
     }
 
     @Override
@@ -107,8 +102,7 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
 
     }
 
-    @OnClick(R.id.button_connect)
-    public void connectSocket(){
+    public void connectSocket(View view){
         presenter.onConnectButtonClicked();
     }
 
@@ -117,4 +111,5 @@ public class MainActivity extends AppCompatActivity implements MainActivityInter
 
         return Formatter.formatIpAddress(manager.getConnectionInfo().getIpAddress());
     }
+
 }

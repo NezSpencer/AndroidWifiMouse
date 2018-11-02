@@ -58,18 +58,14 @@ public class MainActivityPresenter {
     private void proceedToConnect(final String serverIp, final int portNumber) {
 
         //write code to connect on success call: startMouseActivity()
-        Log.e("LOGGER01","connected");
         mainActivityInterface.showLoadingProgress();
         socketThread=new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.e("LOGGER02","connected");
                 clientSocket=new ClientSocket(serverIp,portNumber);
-                Log.e("LOGGER03","connected");
                 clientSocket.createConnection();
             }
         });
-        Log.e("LOGGER04","connected");
         socketThread.start();
     }
 
@@ -92,17 +88,11 @@ public class MainActivityPresenter {
         {
             try {
 
-                Log.e("LOGGER0","connected");
                 GlobalVariables.appSocket=new Socket(ipAddress,portNumber);
                 if (!GlobalVariables.appSocket.isConnected())
                     GlobalVariables.appSocket.connect(new InetSocketAddress(ipAddress,portNumber));
-                Log.e("LOGGER1","connected");
                 reader=new BufferedReader(new InputStreamReader(GlobalVariables.appSocket.getInputStream()));
-                Log.e("LOGGER2","connected");
-                /*GlobalVariables.setAppSocket(socket);*/
 
-
-                Log.e("LOGGER","connected");
                 String fromServer=reader.readLine();
 
                 mainActivityInterface.stopLoadingProgress();

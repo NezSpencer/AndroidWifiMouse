@@ -187,12 +187,10 @@ public class Mouse extends AppCompatActivity implements SensorEventListener {
         int yy = (int) yCoord*Constants.PC_HEIGHT/screenHeight;
         Intent serviceIntent = new Intent(this,SocketService.class);
         serviceIntent.putExtra(Constants.KEY_DATA,new int[]{xx,yy});
-        Log.e("LOGGER"," sending to service");
         startService(serviceIntent);
     }
 
     public void sendMouseClickToService(String buttonClicked){
-        Log.e("LOGGER"," sending click to service");
         Intent btnIntent = new Intent(Mouse.this,SocketService.class);
         btnIntent.putExtra(Constants.KEY_BUTTON,buttonClicked);
         startService(btnIntent);
