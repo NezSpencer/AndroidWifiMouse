@@ -1,0 +1,9 @@
+build/
+local.properties
+.idea/
+bin/
+gen/
+out/
+.gradle/
+*.iml
+*.keystore

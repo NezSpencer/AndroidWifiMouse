@@ -1,13 +1,17 @@
-package com.nuhiara.nezspencer.androidwifimouse.model;
+package com.nuhiara.nezspencer.androidwifimouse.utility;
 
 public class Status {
 
-    public static final Status Ok = new Status(State.SUCCESS);
+    public static final Status Loading = new Status(State.LOADING);
     public static final Status Default = new Status(State.IDLE);
     public static Status error(String msg) {return new Status(State.ERROR, msg);}
 
-    enum State {
-        SUCCESS, ERROR, IDLE
+    public static Status Ok(String msg) {
+        return new Status(State.ERROR, msg);
+    }
+
+    public enum State {
+        SUCCESS, ERROR, IDLE, LOADING
     }
 
     private final String msg;

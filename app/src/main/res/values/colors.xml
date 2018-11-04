@@ -4,5 +4,5 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#e53935</color>
     <color name="ss">#D7CCC8</color>
-    <color name="mouse_background">#000000</color>
+    <color name="mouse_background">#FF424242</color>
 </resources>

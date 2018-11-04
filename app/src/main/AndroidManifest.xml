@@ -27,7 +27,7 @@
 
         <service android:name=".view.SocketService"/>
 
-        <activity android:name=".view.Mouse">
+        <activity android:name=".view.MouseActivity">
 
 
         </activity>

@@ -1,18 +1,16 @@
-package com.nuhiara.nezspencer.androidwifimouse.presenter;
+package com.nuhiara.nezspencer.androidwifimouse.viewmodel;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.ViewModel;
-import android.text.TextUtils;
-import android.util.Log;
-
-import com.nuhiara.nezspencer.androidwifimouse.GlobalVariables;
-import com.nuhiara.nezspencer.androidwifimouse.model.Status;
+import com.nuhiara.nezspencer.androidwifimouse.utility.Status;
+import com.nuhiara.nezspencer.androidwifimouse.view.GlobalVariables;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.ViewModel;
 
 public class MainActivityViewModel extends ViewModel {
 
@@ -33,17 +31,18 @@ public class MainActivityViewModel extends ViewModel {
     }
 
     public void connect(final String serverIp, final int port){
-        if (TextUtils.isEmpty(serverIp))
+        if (serverIp == null || serverIp.trim().equals(""))
             connectionStatus.postValue(Status.error("Ip Address is empty"));
         else if (port == 0)
             connectionStatus.postValue(Status.error("port is empty"));
         else {
-
+            connectionStatus.setValue(Status.Loading);
             this.ipAddress = serverIp;
             this.portNumber = port;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
+
                     createConnection();
                 }
             }).start();
@@ -55,12 +54,12 @@ public class MainActivityViewModel extends ViewModel {
         try {
             GlobalVariables.appSocket=new Socket(ipAddress,portNumber);
             if (!GlobalVariables.appSocket.isConnected())
-                GlobalVariables.appSocket.connect(new InetSocketAddress(ipAddress,portNumber));
+                GlobalVariables.appSocket.connect(new InetSocketAddress(ipAddress, portNumber),
+                        5000);
             BufferedReader reader = new BufferedReader(new InputStreamReader(GlobalVariables.appSocket.getInputStream()));
 
             String fromServer=reader.readLine();
-            connectionStatus.postValue(Status.Ok);
-            //giveSuccessmsgFromServer(fromServer);
+            connectionStatus.postValue(Status.Ok(fromServer));
 
         }
         catch (IOException ex){

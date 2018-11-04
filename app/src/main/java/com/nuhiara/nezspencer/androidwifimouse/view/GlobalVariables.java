@@ -1,4 +1,4 @@
-package com.nuhiara.nezspencer.androidwifimouse;
+package com.nuhiara.nezspencer.androidwifimouse.view;
 
 import android.app.Application;
 
